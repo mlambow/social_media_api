@@ -1,13 +1,17 @@
 import { Router } from 'express';
+import authMiddleware from '../middlewares/auth.middleware.js';
+import { createComment, getCommentsByPost, updateComment, getSingleComment, deleteComment } from '../controllers/comment.controller.js';
 
 const commentRouter = Router()
 
-commentRouter.post('/post/:id', (req, res) => res.send({ title: 'Post a comment' }));
+commentRouter.post('/post/:id', authMiddleware, createComment);
 
-commentRouter.get('/post/:id', (req, res) => res.send({ title: 'Get all posts' }));
+commentRouter.get('/post/:id', authMiddleware, getCommentsByPost);
 
-commentRouter.put('/:id', (req, res) => res.send({ title: 'Update a comment' }));
+commentRouter.get('/:id', authMiddleware, getSingleComment);
 
-commentRouter.delete('/:id', (req, res) => res.send({ title: 'Delete a comment' }));
+commentRouter.put('/:id', authMiddleware, updateComment);
+
+commentRouter.delete('/:id', authMiddleware, deleteComment);
 
 export default commentRouter;
