@@ -41,7 +41,7 @@ export const getUserById = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
     try {
         if(req.params.id !== req.user._id.toString()) {
-            return res.status(403).json({ message: 'Forbidden, you can only update your profile' });
+            return res.status(403).json({ message: 'Unauthorized, you can only update your profile' });
         }
         const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
         if (!user) {

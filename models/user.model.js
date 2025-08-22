@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: String,
     },
+    comments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment',
+    }],
     followers: [{ 
         type: mongoose.Schema.Types.ObjectId, ref: 'User' 
     }],
