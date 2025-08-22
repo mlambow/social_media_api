@@ -102,6 +102,7 @@ export const signIn = async (req, res, next) => {
 export const signOut = async (req, res, next) => {
     try {
         // In a real application, you might want to invalidate the token or perform other cleanup actions
+        
         res.status(200).json({ 
             success: true, 
             message: "User signed out successfully" 

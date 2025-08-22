@@ -11,7 +11,7 @@ export const createPost = async (req, res, next) => {
 
         res.status(201).json({
             message: 'Post created successfully',
-            post
+            data: post
         });
 
     } catch (error) {
@@ -25,19 +25,11 @@ export const createPost = async (req, res, next) => {
 export const getPosts = async (req, res, next) => {
     try {
         const posts = await Post.find().populate('user', 'username profilePicture').sort({ createdAt: -1 }).populate('comments', 'content user createdAt');
-        res.status(200).json(posts);
-    } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
-        next(error);
-    }
-}
-
-//this can be done by adding a field to the post model and then filtering the posts based
-export const getUserPosts = async (req, res, next) => {
-    try {
-        const posts = await Post.find({ user: req.user._id }).populate('user', 'username profilePicture').sort({ createdAt: -1 });
-        res.status(200).json(posts);
-        
+        res.status(200).json({
+            message: 'Posts retrieved successfully', 
+            data: posts,
+            user: req.user._id
+        });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
         next(error);
@@ -51,7 +43,7 @@ export const getSinglePost = async (req, res, next) => {
         
         res.status(200).json({
             message: 'Post retrieved successfully',
-            post
+            data: post
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -75,7 +67,7 @@ export const updatePost = async (req, res, next) => {
         const updatedPost = await Post.findByIdAndUpdate(postId, req.body, { new: true });
         res.status(200).json({
             message: 'Post updated successfully',
-            post: updatedPost
+            data: updatedPost
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -111,7 +103,7 @@ export const getPostsByUser = async (req, res, next) => {
         const posts = await Post.find({ user: req.params.id }).populate('user', 'username profilePicture').sort({ createdAt: -1 });
         if (!posts) return res.status(404).json({ message: 'No posts found for this user' });
 
-        res.status(200).json({ message: 'Posts from a user successfully retrieved', posts});
+        res.status(200).json({ message: 'Posts from a user successfully retrieved', data: posts});
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
         next(error);

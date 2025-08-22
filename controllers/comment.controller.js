@@ -14,7 +14,7 @@ export const createComment = async (req, res, next) => {
     const comment = await Comment.create({
       post: postId,
       user: userId,
-      content
+      data: content
     });
 
     await Post.findByIdAndUpdate(postId, {
@@ -23,7 +23,7 @@ export const createComment = async (req, res, next) => {
 
     res.status(201).json({
         message: 'Comment created successfully',
-        comment
+        data: comment
     });
   } catch (error) {
     console.error('Create Comment Error:', error);
@@ -42,7 +42,10 @@ export const getCommentsByPost = async (req, res, next) => {
 
         if (!comments) return res.status(404).json({ message: 'No comments found for this post' });
 
-        res.status(200).json(comments);
+        res.status(200).json({
+            message: 'Post comments retrieved successfully',
+            data: comments
+        });
     } catch (error) {
         console.error('Retrieving Comments Error:', error);
         res.status(500).json({ message: 'Server error' })
@@ -60,7 +63,7 @@ export const getSingleComment = async (req, res, next) => {
 
         res.status(200).json({
             message: 'Comment retrieved successfully',
-            comment
+            data: comment
         });
     } catch (error) {
         console.error('Retrieving Single Comment Error:', error);
@@ -74,10 +77,15 @@ export const updateComment = async (req, res, next) => {
         const commentId = req.params.id || req.body.commentId || req.body.comment_id;
         const comment = await Comment.findByIdAndUpdate(commentId, req.body, { new: true }).populate('user', 'username profilePicture');
         if (!comment) return res.status(404).json({ message: 'Comment not found' });
+
+        // Check if the current user is the author
+        if (comment.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Unauthorized, you can only update your own comment' });
+        }
         
         res.status(200).json({
             message: 'Comment updated successfully',
-            comment
+            data: comment
         });
     } catch (error) {
         console.error('Updating Comment Error:', error);
@@ -90,14 +98,19 @@ export const deleteComment = async (req, res, next) => {
     try {
         const commentId = req.params.id || req.body.commentId || req.body.comment_id;
         const comment = await Comment.findByIdAndDelete(commentId);
-        if (!comment) return res.status(404).json({ message: 'Comment not found' });
+        if (!comment) return res.status(404).json({ message: 'Comment not be found' });
+
+        // Check if the current user is the author
+        if (comment.user.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Unauthorized, you can only delete your own comment' });
+        }
 
         res.status(200).json({
             message: 'Comment deleted successfully',
         });
     } catch (error) {
-        console.error('Deleting Comment Error:', error);
-        res.status(500).json({ message: 'Server error' })
+        console.error();
+        res.status(500).json({ message: 'Deleting Comment Error:', error: error.message });
         next(error)
     }
 }
