@@ -1,17 +1,19 @@
 import {  Router } from 'express';
+import { createPost, deletePost, getPosts, getPostsByUser, getSinglePost, updatePost } from '../controllers/post.controller.js';
+import authMiddleware from '../middlewares/auth.middleware.js';
 
 const postRouter = Router();
 
-postRouter.post('/', (req, res) => res.send({ title: 'Create a post' }));
+postRouter.post('/', authMiddleware, createPost);
 
-postRouter.get('/', (req, res) => res.send({ title: 'Get all posts' }));
+postRouter.get('/', authMiddleware, getPosts);
 
-postRouter.get('/:id', (req, res) => res.send({ title: 'Get a single post' }));
+postRouter.get('/:id', authMiddleware, getSinglePost);
 
-postRouter.put('/:id', (req, res) => res.send({ title: 'Update a post' }));
+postRouter.put('/:id', authMiddleware, updatePost);
 
-postRouter.delete('/:id', (req, res) => res.send({ title: 'Delete a post' }));
+postRouter.delete('/:id', authMiddleware, deletePost);
 
-postRouter.get('/users/:id', (req, res) => res.send({ title: 'Get the users post' }));
+postRouter.get('/user/:id', authMiddleware, getPostsByUser);
 
 export default postRouter;
