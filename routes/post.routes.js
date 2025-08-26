@@ -1,5 +1,5 @@
 import {  Router } from 'express';
-import { createPost, deletePost, getPosts, getPostsByUser, getSinglePost, updatePost } from '../controllers/post.controller.js';
+import { createPost, deletePost, getPosts, getPostsByUser, getSinglePost, likeToggle, updatePost } from '../controllers/post.controller.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
 
 const postRouter = Router();
@@ -15,5 +15,7 @@ postRouter.put('/:id', authMiddleware, updatePost);
 postRouter.delete('/:id', authMiddleware, deletePost);
 
 postRouter.get('/user/:id', authMiddleware, getPostsByUser);
+
+postRouter.post('/:id/like-toogle', authMiddleware, likeToggle)
 
 export default postRouter;

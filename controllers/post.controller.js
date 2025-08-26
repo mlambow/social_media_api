@@ -109,3 +109,29 @@ export const getPostsByUser = async (req, res, next) => {
         next(error);
     }
 }
+
+export const likeToggle = async (req, res, next) => {
+    try {
+        const postId = req.params.id || req.body.postId || req.body.post_id;
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ message: 'Post not found' });
+
+        const userId = req.user._id.toString();
+        const liked = post.likes.map(id => id.toString()).includes(userId);
+
+        if (liked) {
+            // Unlike: remove userId from likes
+            post.likes = post.likes.filter(id => id.toString() !== userId);
+            await post.save();
+            return res.status(200).json({ message: 'Post unliked successfully', data: post });
+        } else {
+            // Like: add userId to likes
+            post.likes.push(req.user._id);
+            await post.save();
+            return res.status(200).json({ message: 'Post liked successfully', data: post });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+        next(error);
+    }
+}
