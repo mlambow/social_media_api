@@ -1,4 +1,5 @@
 import Post from '../models/post.model.js';
+import User from '../models/user.model.js';
 
 export const createPost = async (req, res, next) => {
     try {
@@ -100,7 +101,11 @@ export const deletePost = async (req, res, next) => {
 
 export const getPostsByUser = async (req, res, next) => {
     try {
-        const posts = await Post.find({ user: req.params.id }).populate('user', 'username profilePicture').sort({ createdAt: -1 });
+        const userId = req.params.id || req.body.postId || req.body.post_id;
+        const user = User.findById(userId)
+        if (!user) return res.status(404).json({ message: 'User not found' })
+
+        const posts = await Post.find({ user: user._id }).populate('user', 'username profilePicture').sort({ createdAt: -1 });
         if (!posts) return res.status(404).json({ message: 'No posts found for this user' });
 
         res.status(200).json({ message: 'Posts from a user successfully retrieved', data: posts});
@@ -130,6 +135,20 @@ export const likeToggle = async (req, res, next) => {
             await post.save();
             return res.status(200).json({ message: 'Post liked successfully', data: post });
         }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+        next(error);
+    }
+}
+
+export const getPostLikes = async (req, res, next) => {
+    try {
+        const postId = req.params.id || req.body.postId || req.body.post_id;
+        const post = await Post.findById(postId).populate('likes', 'username')
+    
+        if (!post) return res.status(404).json({ message: 'Post not found' })
+        
+        res.status(200).json({ likes: post.likes })
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
         next(error);
